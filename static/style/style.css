@@ -31,3 +31,96 @@ h2, .buttons, table {
     margin-left: 10%;
     margin-right: 10%;
 }
+
+#itemImage {
+	height: 600px;
+	width: 400px;
+}
+
+.display {
+	margin-top: 20px;
+	margin-left: 20px;
+	margin-right: 20px;
+	margin-bottom: 20px;
+}
+
+#products_table {
+    border-collapse: separate;
+	border-spacing: 20px;
+    margin-left: 3%;
+    margin-right: 3%;
+}
+
+#productName {
+	text-align: center;
+	font-weight: bold;
+}
+
+#productPrice {
+	text-align: center;
+}
+
+.displayCategory ul li {
+	font-size: 20px;
+}
+html,
+body,
+.intro {
+  height: 100%;
+}
+
+.form-outline .form-control:focus~.form-notch .form-notch-leading {
+  border-top: 0.125rem solid #00b74a;
+  border-bottom: 0.125rem solid #00b74a;
+  border-left: 0.125rem solid #00b74a;
+}
+.form-outline .form-control:focus~.form-notch .form-notch-middle {
+  border-color: #00b74a;
+}
+.form-outline .form-control:focus~.form-notch .form-notch-trailing {
+  border-top: 0.125rem solid #00b74a;
+  border-bottom: 0.125rem solid #00b74a;
+  border-right: 0.125rem solid #00b74a;
+}
+.form-outline .form-control:focus~.form-label {
+  color: #00b74a;
+}
+.autocomplete-input.focused~.form-notch .form-notch-leading {
+  border-top: 2px solid #00b74a;
+  border-bottom: 2px solid #00b74a;
+  border-left: 2px solid #00b74a;
+  transition: all 0.2s linear;
+}
+.autocomplete-input.focused~.form-notch .form-notch-middle {
+  border-color: #00b74a;
+}
+.autocomplete-input.focused~.form-notch .form-notch-trailing {
+  border-color: #00b74a;
+}
+.autocomplete-input.focused~.autocomplete-label {
+  color: #00b74a;
+}
+
+
+#product_description {
+	margin-left: 20px;
+	margin-right: 20px;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	display: inline-block;
+	font-size: 19px;
+}
+
+#descriptionTable td {
+	width: 150px;
+}
+#product_descriptionImage {
+	height: 250px;
+	width: 200px;
+	margin-left: 20px;
+	margin-right: 20px;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	display: inline-block;
+	float: left;
+}

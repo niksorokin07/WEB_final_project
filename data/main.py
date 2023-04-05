@@ -8,9 +8,9 @@ from wtforms.validators import DataRequired
 from data import db_session, news_api, jobs_api
 from data.db_session import SqlAlchemyBase
 from data.users import User
-from data.jobs import Jobs
+from data.products import Jobs
 from data.news import News
-from data.hazard_levels import HazardLevel
+from data.categories import HazardLevel
 from data.user_resource import UsersResource, UsersListResource
 import sqlalchemy
 from flask_restful import Api
@@ -161,7 +161,7 @@ def addjob():
         db_sess.add(job)
         db_sess.commit()
         return redirect("/alljobs")
-    return render_template('addjob.html', form=form)
+    return render_template('add_product.html', form=form)
 
 
 @app.route('/alljobs')
@@ -177,7 +177,7 @@ def all_jobs():
         isf = el.is_finished
         lvl = el.hazard_level[-1].level
         jobs.append([title, team_leader, time, collaborators, isf, el.user.id, el.id, lvl])
-    return render_template('alljobs.html', jobs=jobs)
+    return render_template('allproducts.html', jobs=jobs)
 
 
 @app.route('/addjob/<int:id>', methods=['GET', 'POST'])
@@ -211,7 +211,7 @@ def edit_job(id):
         job = dbs.query(Jobs).filter((Jobs.id == id), (Jobs.user == current_user)).first()
         user = dbs.query(User).filter(User.email == form.email.data).first()
         if not user:
-            return render_template('addjob.html', message='Неверно указана почта', form=form)
+            return render_template('add_product.html', message='Неверно указана почта', form=form)
         if job:
             job.job = form.name.data
             job.team_leader = current_user.id
@@ -227,7 +227,7 @@ def edit_job(id):
             return redirect('/alljobs')
         else:
             pass
-    return render_template('addjob.html', form=form)
+    return render_template('add_product.html', form=form)
 
 
 @app.route('/job_delete/<int:id>', methods=['GET', 'POST'])
