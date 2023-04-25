@@ -11,5 +11,5 @@ class Products(SqlAlchemyBase, SerializerMixin):
     price = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
     description = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     image = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-    categories = sqlalchemy.Column(sqlalchemy.String, sqlalchemy.ForeignKey('categories.id'), nullable=True)
+    category = orm.relationship("Categories", secondary="association",  backref="products")
     owner = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id'), nullable=True)

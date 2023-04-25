@@ -1,27 +1,25 @@
-import datetime
-import os
-
-
 from flask import Flask, render_template, redirect, request, Blueprint, jsonify, make_response, abort
-from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from flask_restful import Api
+import os
+import datetime
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 from flask_wtf import FlaskForm
-from wtforms import SelectField
 from wtforms import PasswordField, BooleanField, SubmitField, EmailField, StringField, IntegerField
+from wtforms import FileField, SelectField
 from wtforms.validators import DataRequired
-from flask_wtf.file import FileField, FileRequired, FileAllowed
-from werkzeug.utils import secure_filename
 from data import db_session
-from data.categories import Categories
-from data.products import Products
-from data.user_resource import UsersResource, UsersListResource
+from data.db_session import SqlAlchemyBase
 from data.users import User
+from data.products import Products
+from data.categories import Categories
+from data.user_resource import UsersResource, UsersListResource
+import sqlalchemy
+from flask_restful import Api
 
 app = Flask(__name__)
 api = Api(app)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(days=365)
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024
 app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.png', '.gif']
 app.config['UPLOAD_PATH'] = 'static/uploads'
 login_manager = LoginManager()
@@ -48,7 +46,7 @@ def parse(data):
     return ans
 
 
-db_session.global_init("db/db_avito.db")
+db_session.global_init("db/blogs.db")
 dbs = db_session.create_session()
 """for el in dbs.query(Products):
     print(el.name)"""
@@ -63,22 +61,31 @@ class LoginForm(FlaskForm):
 
 
 class RegisterForm(FlaskForm):
-    email = EmailField('Логин (email)', validators=[DataRequired()])
-    password = PasswordField('Пароль', validators=[DataRequired()])
-    password_again = PasswordField('Повторите пароль', validators=[DataRequired()])
-    surname = StringField('Фамилия', validators=[DataRequired()])
-    name = StringField('Имя', validators=[DataRequired()])
-    address = StringField('Адрес', validators=[DataRequired()])
-    submit = SubmitField('Зарегистрироваться')
+    email = EmailField('Login / email', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    password_again = PasswordField('Repeat password', validators=[DataRequired()])
+    surname = StringField('Surname', validators=[DataRequired()])
+    name = StringField('Name', validators=[DataRequired()])
+    age = IntegerField('Age')
+    position = StringField('Position')
+    speciality = StringField('Speciality')
+    address = StringField("Address")
+    submit = SubmitField('Register')
 
 
 class ProductForm(FlaskForm):
     name = StringField('Название товара', validators=[DataRequired()])
     price = IntegerField('Цена', validators=[DataRequired()])
     description = StringField('Описание товара', validators=[DataRequired()])
-    image = FileField('Фото товара', validators=[DataRequired(), FileRequired(), FileAllowed(['jpg', 'jpeg', 'png'])])
-    categories = StringField('Категория товара', validators=[DataRequired()])
+    image = FileField('Фото товара', validators=[DataRequired()])
+    category = StringField('Категория', default=0)
     owner_email = SelectField('Владелец (email)', choices=[], validators=[DataRequired()])
+    submit = SubmitField('Submit')
+
+
+class balanceadd(FlaskForm):
+    summ = IntegerField('Колтчество', validators=[DataRequired()])
+    way = owner_email = SelectField('Владелец (email)', choices=['Карта', 'Киви кошелек'], validators=[DataRequired()])
     submit = SubmitField('Submit')
 
 
@@ -94,6 +101,24 @@ def index():
     return render_template('handle_authentification.html')
 
 
+@app.route("/")
+@app.route("/profile")
+def profile():
+    User.balance = 100
+    return render_template('profile.html', balance=User.balance)
+
+
+@app.route("/")
+@app.route("/balancee", methods=['GET', 'POST'])
+def balance():
+    form = balanceadd()
+    if form.validate_on_submit():
+        User.balance = form.summ
+        # User.balance += form.summ
+        return redirect('/')
+    return render_template('add_balance.html', form=form)
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -102,7 +127,7 @@ def login():
         user = db_sess.query(User).filter(User.email == form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
-            return redirect("/all_products")
+            return redirect("/")
         else:
             return render_template('login.html', message="Неправильный логин или пароль!", form=form)
     return render_template('login.html', title='Авторизация', form=form)
@@ -132,11 +157,14 @@ def register():
             name=form.name.data,
             email=form.email.data,
             surname=form.surname.data,
-            address=form.address.data)
+            age=form.age.data,
+            position=form.position.data,
+            address=form.address.data,
+            speciality=form.speciality.data)
         user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()
-        return redirect('/login')
+        return redirect('/')
     return render_template('register.html', title='Register form', form=form)
 
 
@@ -146,8 +174,7 @@ def all_products():
     db_sess = db_session.create_session()
     data = []
     for el in db_sess.query(Products):
-        if el.owner != current_user.id:
-            data.append((el.id, el.name, el.price, el.description, el.image, el.categories, el.owner))
+        data.append((el.id, el.name, el.price, el.description, el.image, el.category, el.owner))
     return render_template('allproducts.html', itemData=parse(data))
 
 
@@ -156,67 +183,51 @@ def all_products():
 def product_description(product_id):
     dbs = db_session.create_session()
     el = dbs.query(Products).filter(Products.id == product_id).first()
-    product_data = (el.id, el.name, el.price, el.description, el.image, el.categories, el.owner)
+    product_data = (el.id, el.name, el.price, el.description, el.image, el.category, el.owner)
     user = dbs.query(User).filter(User.id == el.owner).first()
     owner = user.name + user.surname + '' + "\nКонтактные данные: " + user.email
     return render_template("product_description.html", data=product_data, owner=owner)
 
 
 @app.route('/add_product', methods=['GET', 'POST'])
-@login_required
 def add_product():
     form = ProductForm()
     dbs = db_session.create_session()
-    categs = dbs.query(Categories).all()
-    for el in dbs.query(User).all():
+    res = dbs.query(User).all()
+    for el in res:
         form.owner_email.choices.append(el.email)
-
     filename = ''
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         prod = Products()
         prod.owner = current_user.id
         prod.name = form.name.data
-
-        f = form.image.data
-        filename = secure_filename(f.filename)
+        uploaded_file = form.image.data
+        filename = uploaded_file.filename
         if filename != '':
+            file_ext = os.path.splitext(filename)[1]
+            if file_ext not in app.config['UPLOAD_EXTENSIONS']:
+                abort(400)
             prod.image = filename
-            f.save(os.path.join(app.config['UPLOAD_PATH'], filename))
-
+            uploaded_file.save(os.path.join(app.config['UPLOAD_PATH'], filename))
         prod.description = form.description.data
         prod.price = form.price.data
-        categs_names = map(lambda x: x.name, categs)
-        last_categ_id = max(map(lambda x: int(x.id), categs))
-        categories = []
-        x = form.categories.data
-        if x is None:
-            x = []
-        for el in x.split(', '):
-            if el.lower() in categs_names:
-                categories.append(db_sess.query(Categories).filter(Categories.name == el.lower()).first().id)
-            else:
-                category = Categories()
-                category.name = el.lower()
-                category.id = last_categ_id + 1
-                db_sess.add(category)
-                categories.append(last_categ_id)
-                last_categ_id += 1
-        prod.categories = (', '.join(map(str, categories)))
-
+        categ = Categories()
+        categ.name = form.category.data
+        prod.category.append(categ)
         db_sess.add(prod)
         db_sess.commit()
         return redirect("/all_products")
-    return render_template('add_product.html', form=form, filename=filename)
+    return render_template('add_product.html', form=form, file=filename)
 
 
 @app.route('/add_product/<int:id>', methods=['GET', 'POST'])
 @login_required
-def edit_prod(id):
+def edit_job(id):
     form = ProductForm()
     dbs = db_session.create_session()
-    categs = dbs.query(Categories).all()
-    for el in dbs.query(User).all():
+    res = dbs.query(User).all()
+    for el in res:
         form.owner_email.choices.append(el.email)
     if request.method == "GET":
         prod = dbs.query(Products).filter((Products.id == id), (Products.user == current_user)).first()
@@ -231,27 +242,11 @@ def edit_prod(id):
                     abort(400)
                 prod.image = filename
                 uploaded_file.save(os.path.join(app.config['UPLOAD_PATH'], filename))
-
             prod.description = form.description.data
             prod.price = form.price.data
-
-            categs_names = map(lambda x: x.name, categs)
-            last_categ_id = max(map(lambda x: int(x.id), categs))
-            categories = []
-            x = form.categories.data
-            if x in None:
-                x = []
-            for el in x.split(', '):
-                if el.lower() in categs_names:
-                    categories.append(dbs.query(Categories).filter(Categories.name == el.lower()).first().id)
-                else:
-                    category = Categories()
-                    category.name = el.lower()
-                    category.id = last_categ_id + 1
-                    dbs.add(category)
-                    categories.append(last_categ_id)
-                    last_categ_id += 1
-            prod.category.append(', '.join(map(str, categories)))
+            categ = Categories()
+            categ.name = form.category.data
+            prod.category.append(categ)
             dbs.add(prod)
             dbs.commit()
         else:
@@ -275,27 +270,11 @@ def edit_prod(id):
                     abort(400)
                 prod.image = filename
                 uploaded_file.save(os.path.join(app.config['UPLOAD_PATH'], filename))
-
             prod.description = form.description.data
             prod.price = form.price.data
-            categs_names = map(lambda x: x.name, categs)
-            last_categ_id = max(map(lambda x: int(x.id), categs))
-            categories = []
-            x = form.categories.data
-            if x in None:
-                x = []
-            for el in x.split(', '):
-                if el.lower() in categs_names:
-                    categories.append(dbs.query(Categories).filter(Categories.name == el.lower()).first().id)
-                else:
-                    category = Categories()
-                    category.name = el.lower()
-                    category.id = last_categ_id + 1
-                    dbs.add(category)
-                    categories.append(last_categ_id)
-                    last_categ_id += 1
-            prod.category.append(', '.join(map(str, categories)))
-
+            categ = Categories()
+            categ.name = form.category.data
+            prod.category.append(categ)
             dbs.add(prod)
             dbs.commit()
             return redirect('/all_products')
@@ -304,9 +283,9 @@ def edit_prod(id):
     return render_template('add_product.html', form=form)
 
 
-@app.route('/delete_product/<int:id>', methods=['GET', 'POST'])
+@app.route('/job_delete/<int:id>', methods=['GET', 'POST'])
 @login_required
-def delete_prod(id):
+def delete_job(id):
     dbs = db_session.create_session()
     product = dbs.query(Products).filter((Products.id == id), (Products.owner == current_user)).first()
     if product:
@@ -315,17 +294,6 @@ def delete_prod(id):
     else:
         pass
     return redirect('/all_products')
-
-
-@app.route('/users_products')
-@login_required
-def users_products():
-    db_sess = db_session.create_session()
-    data = []
-    for el in db_sess.query(Products):
-        if el.owner == current_user.id:
-            data.append((el.name, el.description, el.price, el.categories, el.id))
-    return render_template('users_products.html', data=data)
 
 
 @app.errorhandler(400)
