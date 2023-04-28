@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="product_description">
+    <img src="{{url_for('static', filename='uploads/'+data[4]) }}" id="product_descriptionImage"/>
+		<h2>Товара</h2>
+		<table id="descriptionTable">
+			<tr>
+				<td>Название</td>
+				<td>{{data[1]}}</td>
+			</tr>
+            <tr>
+				<td>Владелец</td>
+				<td>{{owner}}</td>
+			</tr>
+			<tr>
+				<td>Цена</td>
+				<td>${{data[2]}}</td>
+			</tr>
+			<tr>
+				<td>Склад</td>
+				<td>{{data[5]}}</td>
+			</tr>
+		</table>
+		<h2>Описание товара</h2>
+		<p>{{data[3]}}</p>
+	</div>
+{% endblock %}

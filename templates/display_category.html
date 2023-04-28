@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Товары категории {{ category }}</h2>
+<div id="work_logs">
+    {% if current_user.is_authenticated %}
+    <br/>
+    {% endif %}
+    <div>
+        <h2>Items</h2>
+        {% for data in itemData %}
+        <table id="products_table">
+            <tr id="productName">
+                {% for row in data %}
+                <td>
+                    {{row[1]}}
+                </td>
+                {% endfor %}
+            </tr>
+            <tr id="productImage">
+                {% for row in data %}
+                <td>
+                    <a href="/product_description/{{row[0]}}">
+                        <img src="{{ url_for('static', filename='uploads/' + row[4]) }}" id="itemImage"/>
+                    </a>
+                </td>
+                {% endfor %}
+            </tr>
+            <tr id="productPrice">
+                {% for row in data %}
+                <td>
+                     {{row[2]}}₽
+                </td>
+                {% endfor %}
+            </tr>
+        </table>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 id="temp">{{ title }}</h2>
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    <div class="forms">
+        {{ form.summ.label }}<br>
+        {{ form.summ(class="form-control") }}<br>
+    </div>
+    <div class="forms">
+        {{ form.way.label }}<br>
+        {{ form.way(class="form-control") }}<br>
+    </div>
+    <p class="forms">{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+    {{message}}
+</form>
+{% endblock %}

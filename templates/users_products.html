@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 id="spec2">Rooms log</h2>
+<div id="users_prod">
+{% if current_user.is_authenticated %}
+    <a href="/add_product" class="btn btn-secondary">Добавить новый товар</a>
+    <br/>
+{% endif %}
+{% for product in data %}
+    <h5>Товар № {{ product[4] }}</h5>
+    <div class="buttons">
+        <a href="/product_description/{{ product[4] }}" class="btn btn-warning">Перейти</a>
+        <a href="/add_product/{{ product[4] }}" class="btn btn-danger">Изменить</a>
+        <a href="/delete_product/{{ product[4] }}" class="btn btn-danger">Удалить</a>
+    </div>
+    <br/>
+    <table class="table">
+      <thead class="thead-light">
+        <tr class="d-flex" style="background-color: #e1e1e1">
+          <th scope="col" class="col-2">Название</th>
+          <th scope="col" class="col-4">Описание</th>
+          <th scope="col" class="col-2">Цена</th>
+          <th scope="col" class="col-2">Категория</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="d-flex" style="background-color: #8affff">
+          <td class="col-2">{{ product[0] }}</td>
+          <td class="col-4">{{ product[1] }}</td>
+          <td class="col-2">{{ product[2] }}</td>
+          <td class="col-2">{{ product[3] }}</td>
+        </tr>
+      </tbody>
+    </table>
+{% endfor %}
+</div>
+{% endblock %}
