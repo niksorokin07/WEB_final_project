@@ -6,7 +6,7 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from flask_restful import Api
 from flask_wtf import FlaskForm
 from wtforms import SelectField
-from wtforms import PasswordField, BooleanField, SubmitField, EmailField, StringField, IntegerField
+from wtforms import PasswordField, BooleanField, SubmitField, EmailField, StringField, IntegerField, SelectMultipleField
 from wtforms.validators import DataRequired
 from flask_wtf.file import FileField, FileRequired, FileAllowed
 from werkzeug.utils import secure_filename
@@ -14,7 +14,9 @@ from data import db_session
 from data.categories import Categories
 from data.products import Products
 from data.user_resource import UsersResource, UsersListResource
+from data.products_resource import ProductsResource, ProductsListResource
 from data.users import User
+from data import products_api, user_api
 
 app = Flask(__name__)
 api = Api(app)
@@ -404,4 +406,10 @@ def bad_request(_):
 
 if __name__ == '__main__':
     db_session.global_init("db/db_avito.db")
+    app.register_blueprint(products_api.blueprint)
+    app.register_blueprint(user_api.blueprint)
+    api.add_resource(UsersListResource, '/api/v2/users')
+    api.add_resource(UsersResource, '/api/v2/users/<int:user_id>')
+    api.add_resource(ProductsListResource, '/api/v2/products')
+    api.add_resource(ProductsResource, '/api/v2/products/<int:product_id>')
     app.run(port=8080, host='127.0.0.1')
