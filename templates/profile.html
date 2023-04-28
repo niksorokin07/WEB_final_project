@@ -1,9 +1,11 @@
-<!DOCTYPE html>
+{% extends "base.html" %}
+{% block content %}
+
 <html>
 
 <head>
     <meta charset="utf-8">
-    <title>Круглые изображения</title>
+    <title>Proile</title>
     <style>
    .round {
     border-radius: 100px;
@@ -98,96 +100,9 @@ h2 {
     color: #fd6969
 }
 
-.top-panel {
-    background: #39464e;
-    position: absolute;
-    top: -250px;
-    left: 0;
-    width: 100%;
-    height: 250px;
-    padding: 0;
-    box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
-    transition: top 400ms cubic-bezier(0.17,0.04,0.03,0.94)
-}
 
-.message {
-    color: #fff;
-    font-weight: 300;
-    position: relative;
-    padding: 3em 2em;
-    margin: 0 auto;
-    max-width: 980px
-}
 
-.message h1 {
-    color: #fff
-}
 
-.message h2 {
-    color: #888
-}
-.message p {
-    margin: 1em 0
-}
-.message a {
-    text-decoration: none;
-    color: #748b74
-}
-.message a:hover {
-    color: #95984b
-}
-
-label.btn {
-    display: block;
-    position: absolute;
-    right: 50px;
-    top: 0;
-    cursor: pointer;
-    background: #2bbbad;
-    width: 50px;
-    border-radius: 0 0 5px 5px;
-    padding: 8px 5px;
-    color: #FFF;
-    line-height: 20px;
-    font-size: 12px;
-    text-align: center;
-    -webkit-font-smoothing: antialiased;
-    cursor: pointer;
-    transition: all 400ms cubic-bezier(0.17,0.04,0.03,0.94);
-    box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
-    z-index: 9999
-}
-
-label.btn:hover {
-    box-shadow: 0 5px 11px 0 rgba(0,0,0,0.18),0 4px 15px 0 rgba(0,0,0,0.15)
-}
-
-label.btn:after {
-    content: '\f078';
-    font: normal 18px/1 FontAwesome;
-    text-decoration: inherit
-}
-
-.open:checked ~ .top-panel {
-    top: 0
-}
-
-.open:checked ~ label.btn {
-    top: 250px
-}
-
-.open:checked ~ .container {
-    margin-top: 300px
-}
-
-.open:checked + label.btn {
-    background: #dd6149
-}
-
-.open:checked + label.btn:after {
-    content: '\f077';
-    font: normal 18px/1 FontAwesome
-}
 
 .b {
   width: 130px;
@@ -217,20 +132,13 @@ label.btn:after {
 
 <body>
 
-<div id='avab'><input type="image" src="static/uploads/avatar.jpg" alt="" class="round" width="100" height="111"></div>
+<div id='avab'><input type="image" src="static/uploads/unnamed.jpg" alt="" class="round" width="100" height="111"></div>
 <h2>Аватар</h2>
 <h1 id='about'>Обо мне:</h1>
 <h1>баланс:{{ balance }}</h1>
-<a href="" class="gradient-button">Меню</a>
+<a href="/" class="gradient-button">Меню</a>
 <input class="open" id="top-box" type="checkbox" hidden>
 <label class="btn" for="top-box"></label>
-<div class="top-panel">
-   <div class="message">
-       <button class="b">Кнопка 16</button>
-        <button class="b">Кнопка 16</button>
-       <button class="b">Кнопка 16</button>
-
-   </div>
-</div>
 </body>
 </html>
+{% endblock %}

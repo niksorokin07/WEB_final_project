@@ -27,8 +27,6 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 
-
-
 def parse(data):
     ans = []
     i = 0
@@ -57,6 +55,10 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Войти')
 
 
+class notForm(FlaskForm):
+    submit = SubmitField('Отправить сообщение владельцу')
+
+
 class RegisterForm(FlaskForm):
     email = EmailField('Логин (email)', validators=[DataRequired()])
     password = PasswordField('Пароль', validators=[DataRequired()])
@@ -79,8 +81,8 @@ class ProductForm(FlaskForm):
 
 class balanceadd(FlaskForm):
     summ = IntegerField('Количество', validators=[DataRequired()])
-    way = SelectField('Способ оплаты', choices=['Карта', 'Киви кошелек'], validators=[DataRequired()])
     submit = SubmitField('Submit')
+    # card_number = IntegerField('номер карты', validators=[DataRequired()])
 
 
 @login_manager.user_loader
@@ -97,6 +99,7 @@ def index():
 
 @app.route("/profile")
 def profile():
+    print(current_user.balance)
     return render_template('profile.html', balance=current_user.balance)
 
 
@@ -104,8 +107,15 @@ def profile():
 def balance():
     form = balanceadd()
     if form.validate_on_submit():
-        current_user.balance = form.summ
-        return redirect('/')
+        db_sess = db_session.create_session()
+        print(current_user.balance)
+        bala = db_sess.query(User).filter(User.id == current_user.id).first()
+        bala.balance += int(form.summ.data)
+        print(current_user.balance)
+        db_sess.add(bala)
+        db_sess.commit()
+        return redirect('/profile')
+
     return render_template('add_balance.html', form=form)
 
 
@@ -160,21 +170,68 @@ def register():
 def all_products():
     db_sess = db_session.create_session()
     data = []
+    note = False
+    mala = []
+    bala = db_sess.query(User).filter(User.id == current_user.id).first()
+    for el in db_sess.query(Products):
+        print(el.notification)
+
+        if el.notification:
+            print(mala)
+            if el.owner == bala.id:
+                note = True
+                mala.append(el.name)
+                boss = db_sess.query(Products).filter(Products.id == el.id).first()
+                boss.notification = 0
+                db_sess.add(boss)
+                db_sess.commit()
+
     for el in db_sess.query(Products):
         if el.owner != current_user.id:
             data.append((el.id, el.name, el.price, el.description, el.image, el.categories, el.owner))
-    return render_template('allproducts.html', itemData=parse(data))
+    categs = []
+    for el in db_sess.query(Categories).all():
+        categs.append([el.id, el.name])
+    print(categs)
+
+    return render_template('allproducts.html', itemData=parse(data), categs=categs, message=note, name=', '.join(mala))
+
+
+@app.route('/display_category/<int:id>')
+@login_required
+def display_category(id):
+
+    db_sess = db_session.create_session()
+    data = []
+    for el in db_sess.query(Products):
+        if el.owner != current_user.id and str(id) in str(el.categories).split(", "):
+            data.append((el.id, el.name, el.price, el.description, el.image, el.categories, el.owner))
+    x = db_sess.query(Categories).filter(Categories.id == id).first().name
+    categs = []
+    for el in db_sess.query(Categories).all():
+        categs.append([el.id, el.name])
+    return render_template('display_category.html', category=x, itemData=parse(data),categs=categs)
 
 
 @app.route('/product_description/<int:product_id>')
 @login_required
 def product_description(product_id):
+    note = False
+    form = notForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        bala = db_sess.query(Products).filter(Products.id == product_id).first()
+        bala.notification = 1
+        db_sess.add(bala)
+        db_sess.commit()
+        return redirect('/all_products')
+
     dbs = db_session.create_session()
     el = dbs.query(Products).filter(Products.id == product_id).first()
     product_data = (el.id, el.name, el.price, el.description, el.image, el.categories, el.owner)
     user = dbs.query(User).filter(User.id == el.owner).first()
     owner = user.name + user.surname + '' + "\nКонтактные данные: " + user.email
-    return render_template("product_description.html", data=product_data, owner=owner)
+    return render_template("product_description.html", data=product_data, owner=owner, note=note, form=form)
 
 
 @app.route('/add_product', methods=['GET', 'POST'])
@@ -234,7 +291,7 @@ def edit_prod(id):
     for el in dbs.query(User).all():
         form.owner_email.choices.append(el.email)
     if request.method == "GET":
-        prod = dbs.query(Products).filter((Products.id == id), (Products.user == current_user)).first()
+        prod = dbs.query(Products).filter((Products.id == id), (Products.owner == current_user.id)).first()
         if prod:
             prod.owner = current_user.id
             prod.name = form.name.data
@@ -316,7 +373,7 @@ def edit_prod(id):
             return redirect('/all_products')
         else:
             pass
-    return render_template('add_product.html', form=form)
+    return render_template('add_product.html', form=form, filename=filename)
 
 
 @app.route('/delete_product/<int:id>', methods=['GET', 'POST'])

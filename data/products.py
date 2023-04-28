@@ -13,3 +13,4 @@ class Products(SqlAlchemyBase, SerializerMixin):
     image = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     categories = sqlalchemy.Column(sqlalchemy.String, sqlalchemy.ForeignKey('categories.id'), nullable=True)
     owner = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id'), nullable=True)
+    notification = sqlalchemy.Column(sqlalchemy.Boolean, nullable=True, default=False)

@@ -1,31 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-{% if message == True %}
-<style>
-
-</style>
-<div class="alert">
-    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-    Ваш(и) товар(ы) {{ name }} востребован(ы)
-</div>
-{% endif %}
-
-<!-- ordered list -->
-
-
-{% if current_user.is_authenticated %}
-<div id="panel"> >>>
-    <div id="hidden_panel">
-
-
-
-    </div>
-</div>
-
-
-
-
 <input type="checkbox" id="bokovon-lodsaba" />
 <div class="bokovaya-kapanel">
   <label class="nogamlenu-knopki-2" for="bokovon-lodsaba">+</label>
@@ -33,6 +8,7 @@
   <p> {% for categ in categs %}
 <p><a href="/display_category/{{ categ[0] }}"> {{ categ[1] }}</a></p>
 {% endfor %}</p>
+    <a href = '/all_products'>все товары</a>
 </div>
 <div class="nogamlenu-knopki-1-wr">
   <label class="btnn" for="bokovon-lodsaba">
@@ -40,38 +16,11 @@
   <div class="side-b side-close">ФИЛЬТРАЦИЯ</div>
   </label>
 </div>
-<script src="./static/scripts/script.js"></script>
-<section class="intro">
-    <div class="bg-image h-100" style="background-color: rgb(167, 152, 239);">
-        <div class="mask d-flex align-items-center h-100">
-            <div class="container">
-                <div class="card">
-                    <div class="card-body p-4">
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="form-outline flex-fill"><input id="searchbar" onkeyup="search_animal()"
-                                                                           type="text"/> <label
-                                        class="form-label" form="form1">Enter keywords?</label>
-                                </div>
-                                <button type="button" class="btn btn-success"><i class="fas fa-search"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-{% endif %}
-
-
+<h2>Товары категории {{ category }}</h2>
 <div id="work_logs">
     {% if current_user.is_authenticated %}
     <br/>
     {% endif %}
-
-
-
     <div>
         <h2>Items</h2>
         {% for data in itemData %}
@@ -95,7 +44,7 @@
             <tr id="productPrice">
                 {% for row in data %}
                 <td>
-                    {{row[2]}}₽
+                     {{row[2]}}₽
                 </td>
                 {% endfor %}
             </tr>

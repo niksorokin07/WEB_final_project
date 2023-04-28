@@ -1,28 +1,215 @@
 <!DOCTYPE html>
+<style>
+#side-checkbox {
+    display: none;
+}
+.side-panel {
+    position: fixed;
+    z-index: 999999;
+    top: 0;
+    left: -360px;
+    background: #c7b39b;
+    transition: all 0.5s;
+    width: 320px;
+    height: 100vh;
+    box-shadow: 10px 0 20px rgba(0,0,0,0.4);
+    color: black;
+    padding: 40px 20px;
+
+}
+
+.side-button-1-wr {
+    text-align: right;
+}
+.side-button-1 {
+    display: inline-block;
+}
+.side-button-1 .side-b {
+    margin: 10px;
+    text-decoration: none;
+    position: relative;
+    font-size: 20px;
+    line-height: 20px;
+    padding: 12px 30px;
+    color: #FFF;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-family: 'Roboto', Тahoma, sans-serif;
+    background: #735206;
+    cursor: pointer;
+    border: 2px solid #E2BC65;
+}
+
+.side-button-1 .side-b:after,
+.side-button-1 .side-b:before {
+    position: absolute;
+    height: 4px;
+    left: 50%;
+    bottom: -6px;
+    content: "";
+    transition: all 280ms ease-in-out;
+    width: 0;
+}
+
+.gradient-button {
+  text-decoration: none;
+  display: inline-block;
+  color: black;
+  padding: 20px 30px;
+  margin: 10px 20px;
+  border-radius: 10px;
+  font-family: 'Montserrat', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  background-image: linear-gradient(to right, #DEB887 0%, #D2B48C 51%, #CD853F 100%);
+  background-size: 200% auto;
+  box-shadow: 0 0 20px rgba(0, 0, 0, .1);
+  transition: .5s;
+  margin-top:35%;
+}
+.gradient-button:hover {
+  background-position: right center;
+}
+.side-button-1 .side-close {
+    display: none;
+}
+#side-checkbox:checked + .side-panel + .side-button-1-wr .side-button-1 .side-open {
+    display: none;
+}
+#side-checkbox:checked + .side-panel + .side-button-1-wr .side-button-1 .side-close {
+    display: block;
+}
+#side-checkbox:checked + .side-panel {
+    left: 0;
+}
+
+
+html{
+    background-color: #c7b39b;
+}
+body{
+    background-color: #c7b39b;
+}
+#bokovon-lodsaba {
+  display: none;
+}
+.bokovaya-kapanel {
+  position: fixed;
+    z-index: 999999;
+    top: 0;
+    left: -360px;
+    background: #c7b39b;
+    transition: all 0.5s;
+    width: 320px;
+    height: 100vh;
+    box-shadow: 10px 0 20px rgba(0,0,0,0.4);
+    color: black;
+    padding: 40px 20px;
+}
+.vobocuka-kagolovok {
+  font-size: 23px;
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+  border-bottom: 2px solid #BFE2FF;
+}
+/* Оформление кнопки на странице */
+.btnn-wr {
+  text-align: center;
+}
+.btnn {
+  display: inline-block;
+}
+.btnn .side-b {
+  margin: 8px;
+  text-decoration: none;
+  position: relative;
+  font-size: 18px;
+  line-height: 16px;
+  padding: 8px 24px;
+  color: #efebeb;
+  text-transform: uppercase;
+  background: #14560c;
+  cursor: pointer;
+  border: 2px solid #178a13;
+}
+
+.btnn .side-b:after,
+.btnn .side-b:before {
+  position: absolute;
+  height: 2px;
+  left: 50%;
+  bottom: -6px;
+  content: "";
+  transition: all 280ms ease-in-out;
+  width: 0;
+}
+.btnn .side-open:after,
+.btnn .side-open:before {
+  background: #0b940b;
+}
+.btnn .side-close:after,
+.btnn .side-close:before {
+  background: #fb1212;
+}
+.btnn .side-b:before {
+  top: -6px;
+}
+
+/* Переключатели кнопки 1 */
+.btnn .side-close {
+  display: none;
+}
+#bokovon-lodsaba:checked + .bokovaya-kapanel + .nogamlenu-knopki-1-wr .nogamlenu-knopki-1 .side-open {
+  display: none;
+}
+#bokovon-lodsaba:checked + .bokovaya-kapanel + .nogamlenu-knopki-1-wr .nogamlenu-knopki-1 .side-close {
+  display: block;
+}
+#bokovon-lodsaba:checked + .bokovaya-kapanel {
+  left: 0;
+}
+
+</style>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet"
-                    href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
-                    integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
-                    crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style/style.css') }}" />
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
+          integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
+          crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style/style.css') }}"/>
     <title>{{ title }}</title>
-    </head>
-    <body>
-        <h1>Сайт продажи</h1>
-        <br>
-        <nav><a>
-            {% if current_user.is_authenticated %}
-                <a class="navbar-brand" href="/logout">{{ current_user.name }}</a>
-            {% else %}
-                <a>
-                    <a class="btn btn-primary " href="/register">Зарегистрироваться</a>
-                    <a class="btn btn-success" href="/login">Войти</a>
-                </a>
-            {% endif %}
-        </a></nav>
-        <br>
-         {% block content %}{% endblock content %}
-    </body>
+</head>
+<body>
+<input type="checkbox" id="side-checkbox"/>
+<div class="side-panel">
+    <label class="side-button-2" for="side-checkbox">+</label>
+    <a href="/profile" class="gradient-button">Профиль</a>
+    <a href="/all_products" class="gradient-button">Все товары</a>
+    <a href="/balancee" class="gradient-button">Пополнение счета</a>
+     <a href="/users_products" class="gradient-button">Мои товары</a>
+</div>
+<div class="side-button-1-wr">
+    <label class="side-button-1" for="side-checkbox">
+        <div class="side-b side-open">Открыть панель навигации</div>
+        <div class="side-b side-close">Закрыть панель навигации</div>
+    </label>
+</div>
+<h1>Сайт продажи</h1>
+<br>
+<nav><a>
+    {% if current_user.is_authenticated %}
+    <a class="navbar-brand" href="/logout">{{ current_user.name }}</a>
+
+    {% else %}
+    <a>
+        <a class="btn btn-primary " href="/register">Зарегистрироваться</a>
+        <a class="btn btn-success" href="/login">Войти</a>
+    </a>
+    {% endif %}
+</a></nav>
+<br>
+
+{% block content %}{% endblock content %}
+</body>
 </html>
