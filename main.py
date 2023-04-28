@@ -290,19 +290,18 @@ def edit_prod(id):
     categs = dbs.query(Categories).all()
     for el in dbs.query(User).all():
         form.owner_email.choices.append(el.email)
+    filename = ""
     if request.method == "GET":
         prod = dbs.query(Products).filter((Products.id == id), (Products.owner == current_user.id)).first()
         if prod:
             prod.owner = current_user.id
             prod.name = form.name.data
-            uploaded_file = form.image.data
-            filename = uploaded_file.filename
-            if filename != '':
-                file_ext = os.path.splitext(filename)[1]
-                if file_ext not in app.config['UPLOAD_EXTENSIONS']:
-                    abort(400)
-                prod.image = filename
-                uploaded_file.save(os.path.join(app.config['UPLOAD_PATH'], filename))
+            f = form.image.data
+            if f is not None:
+                filename = secure_filename(f.filename)
+                if filename != '':
+                    prod.image = filename
+                    f.save(os.path.join(app.config['UPLOAD_PATH'], filename))
 
             prod.description = form.description.data
             prod.price = form.price.data
@@ -311,9 +310,9 @@ def edit_prod(id):
             last_categ_id = max(map(lambda x: int(x.id), categs))
             categories = []
             x = form.categories.data
-            if x in None:
+            if x is None:
                 x = []
-            for el in x.split(', '):
+            for el in x:
                 if el.lower() in categs_names:
                     categories.append(dbs.query(Categories).filter(Categories.name == el.lower()).first().id)
                 else:
@@ -323,14 +322,14 @@ def edit_prod(id):
                     dbs.add(category)
                     categories.append(last_categ_id)
                     last_categ_id += 1
-            prod.category.append(', '.join(map(str, categories)))
+            prod.categories = ', '.join(map(str, categories))
             dbs.add(prod)
             dbs.commit()
         else:
             pass
     if form.validate_on_submit():
         dbs = db_session.create_session()
-        prod = dbs.query(Products).filter((Products.id == id), (Products.owner == current_user)).first()
+        prod = dbs.query(Products).filter((Products.id == id), (Products.owner == current_user.id)).first()
         res = dbs.query(User).all()
         for el in res:
             form.owner_email.choices.append(el.email)
@@ -339,14 +338,12 @@ def edit_prod(id):
         if prod:
             prod.owner = current_user.id
             prod.name = form.name.data
-            uploaded_file = form.image.data
-            filename = uploaded_file.filename
-            if filename != '':
-                file_ext = os.path.splitext(filename)[1]
-                if file_ext not in app.config['UPLOAD_EXTENSIONS']:
-                    abort(400)
-                prod.image = filename
-                uploaded_file.save(os.path.join(app.config['UPLOAD_PATH'], filename))
+            f = form.image.data
+            if f is not None:
+                filename = secure_filename(f.filename)
+                if filename != '':
+                    prod.image = filename
+                    f.save(os.path.join(app.config['UPLOAD_PATH'], filename))
 
             prod.description = form.description.data
             prod.price = form.price.data
@@ -354,9 +351,9 @@ def edit_prod(id):
             last_categ_id = max(map(lambda x: int(x.id), categs))
             categories = []
             x = form.categories.data
-            if x in None:
+            if x is None:
                 x = []
-            for el in x.split(', '):
+            for el in x:
                 if el.lower() in categs_names:
                     categories.append(dbs.query(Categories).filter(Categories.name == el.lower()).first().id)
                 else:
@@ -366,7 +363,7 @@ def edit_prod(id):
                     dbs.add(category)
                     categories.append(last_categ_id)
                     last_categ_id += 1
-            prod.category.append(', '.join(map(str, categories)))
+            prod.categories = ', '.join(map(str, categories))
 
             dbs.add(prod)
             dbs.commit()
@@ -380,7 +377,7 @@ def edit_prod(id):
 @login_required
 def delete_prod(id):
     dbs = db_session.create_session()
-    product = dbs.query(Products).filter((Products.id == id), (Products.owner == current_user)).first()
+    product = dbs.query(Products).filter((Products.id == id), (Products.owner == current_user.id)).first()
     if product:
         dbs.delete(product)
         dbs.commit()
