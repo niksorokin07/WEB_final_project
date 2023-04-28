@@ -1,21 +1,21 @@
 from requests import get, exceptions, post, delete, put
 
-"""try:
-    print(get('http://localhost:8080/api/jobs').json())
+try:
+    print(get('http://localhost:8080/api/products').json())
 except exceptions.ConnectionError:
     print("Connection 1 refused")
 try:
-    print(get('http://localhost:8080/api/jobs/1').json())
+    print(get('http://localhost:8080/api/products/1').json())
 except exceptions.ConnectionError:
     print("Connection 2 refused")
 try:
-    print(get('http://localhost:8080/api/jobs/999').json())
+    print(get('http://localhost:8080/api/products/999').json())
 except exceptions.ConnectionError:
     print("Connection 3 refused")
 try:
-    print(get('http://localhost:8080/api/jobs/s').json())
+    print(get('http://localhost:8080/api/products/s').json())
 except exceptions.ConnectionError:
-    print("Connection 4 refused")"""
+    print("Connection 4 refused")
 """
 try:
     # Bad request

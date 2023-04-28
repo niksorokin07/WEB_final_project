@@ -1,37 +1,63 @@
-from flask import Flask, render_template, redirect, request, Blueprint, jsonify, make_response, abort
 import datetime
-from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
-from flask_wtf import FlaskForm
-from wtforms import PasswordField, BooleanField, SubmitField, EmailField, StringField, IntegerField
-from wtforms import SelectMultipleField, DateTimeField, SelectField
-from wtforms.validators import DataRequired
-from data import db_session, jobs_api
-from data.db_session import SqlAlchemyBase
-from data.users import User
-from data.jobs import Jobs
-from data.hazard_levels import HazardLevel
-from data.user_resource import UsersResource, UsersListResource
-import sqlalchemy
+import os
+
+from flask import Flask, render_template, redirect, request, Blueprint, jsonify, make_response, abort
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_restful import Api
-from data.jobs_resource import JobsResource, JobsListResource
+from flask_wtf import FlaskForm
+from wtforms import SelectField
+from wtforms import PasswordField, BooleanField, SubmitField, EmailField, StringField, IntegerField, SelectMultipleField
+from wtforms.validators import DataRequired
+from flask_wtf.file import FileField, FileRequired, FileAllowed
+from werkzeug.utils import secure_filename
+from data import db_session
+from data.categories import Categories
+from data.products import Products
+from data.user_resource import UsersResource, UsersListResource
+from data.products_resource import ProductsResource, ProductsListResource
+from data.users import User
+from data import products_api, user_api
 
 app = Flask(__name__)
 api = Api(app)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(days=365)
-
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.png', '.gif']
+app.config['UPLOAD_PATH'] = 'static/uploads'
 login_manager = LoginManager()
 login_manager.init_app(app)
 
 blueprint = Blueprint(
-    'news_api',
+    'products_api',
+    __name__,
+    template_folder='templates'
+)
+blueprint1 = Blueprint(
+    'users_api',
     __name__,
     template_folder='templates'
 )
 
-db_session.global_init("db/blogs.db")
-dbs = db_session.create_session()
 
+def parse(data):
+    ans = []
+    i = 0
+    while i < len(data):
+        curr = []
+        for j in range(4):
+            if i >= len(data):
+                break
+            curr.append(data[i])
+            i += 1
+        ans.append(curr)
+    return ans
+
+
+db_session.global_init("db/db_avito.db")
+dbs = db_session.create_session()
+"""for el in dbs.query(Products):
+    print(el.name)"""
 dbs.commit()
 
 
@@ -43,29 +69,28 @@ class LoginForm(FlaskForm):
 
 
 class RegisterForm(FlaskForm):
-    email = EmailField('Login / email', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    password_again = PasswordField('Repeat password', validators=[DataRequired()])
-    surname = StringField('Surname', validators=[DataRequired()])
-    name = StringField('Name', validators=[DataRequired()])
-    age = IntegerField('Age')
-    position = StringField('Position')
-    speciality = StringField('Speciality')
-    address = StringField("Address")
-    submit = SubmitField('Register')
+    email = EmailField('Логин (email)', validators=[DataRequired()])
+    password = PasswordField('Пароль', validators=[DataRequired()])
+    password_again = PasswordField('Повторите пароль', validators=[DataRequired()])
+    surname = StringField('Фамилия', validators=[DataRequired()])
+    name = StringField('Имя', validators=[DataRequired()])
+    address = StringField('Адрес', validators=[DataRequired()])
+    submit = SubmitField('Зарегистрироваться')
 
 
-class JobForm(FlaskForm):
-    email = SelectField('Team leader email', choices=[], validators=[DataRequired()])
-    name = StringField('Title of job', validators=[DataRequired()])
-    work_size = IntegerField('Work size', validators=[DataRequired()])
-    collaborators = SelectMultipleField('Collaborators', choices=[])
-    start_date = DateTimeField('Start date', format='%Y-%m-%d %H:%M:%S',
-                               default=datetime.datetime(year=2023, month=1, day=1, hour=1, minute=1, second=1))
-    end_date = DateTimeField('End date', format='%Y-%m-%d %H:%M:%S',
-                             default=datetime.datetime(year=2023, month=1, day=1, hour=1, minute=1, second=1))
-    hazard_level = IntegerField('Hazard level', default=0)
-    is_finished = BooleanField('Is finished?')
+class ProductForm(FlaskForm):
+    name = StringField('Название товара', validators=[DataRequired()])
+    price = IntegerField('Цена', validators=[DataRequired()])
+    description = StringField('Описание товара', validators=[DataRequired()])
+    image = FileField('Фото товара', validators=[DataRequired(), FileRequired(), FileAllowed(['jpg', 'jpeg', 'png'])])
+    categories = SelectMultipleField('Категория товара', choices=[], validators=[DataRequired()])
+    owner_email = SelectField('Владелец (email)', choices=[], validators=[DataRequired()])
+    submit = SubmitField('Submit')
+
+
+class balanceadd(FlaskForm):
+    summ = IntegerField('Количество', validators=[DataRequired()])
+    way = SelectField('Способ оплаты', choices=['Карта', 'Киви кошелек'], validators=[DataRequired()])
     submit = SubmitField('Submit')
 
 
@@ -78,8 +103,21 @@ def load_user(user_id):
 @app.route("/")
 @app.route("/index")
 def index():
-    db_sess = db_session.create_session()
     return render_template('handle_authentification.html')
+
+
+@app.route("/profile")
+def profile():
+    return render_template('profile.html', balance=current_user.balance)
+
+
+@app.route("/balancee", methods=['GET', 'POST'])
+def balance():
+    form = balanceadd()
+    if form.validate_on_submit():
+        current_user.balance = form.summ
+        return redirect('/')
+    return render_template('add_balance.html', form=form)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -90,7 +128,7 @@ def login():
         user = db_sess.query(User).filter(User.email == form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
-            return redirect("/")
+            return redirect("/all_products")
         else:
             return render_template('login.html', message="Неправильный логин или пароль!", form=form)
     return render_template('login.html', title='Авторизация', form=form)
@@ -120,122 +158,219 @@ def register():
             name=form.name.data,
             email=form.email.data,
             surname=form.surname.data,
-            age=form.age.data,
-            position=form.position.data,
-            address=form.address.data,
-            speciality=form.speciality.data)
+            address=form.address.data)
         user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()
-        return redirect('/')
+        return redirect('/login')
     return render_template('register.html', title='Register form', form=form)
 
 
-@app.route('/addjob', methods=['GET', 'POST'])
+@app.route('/all_products')
 @login_required
-def addjob():
-    form = JobForm()
+def all_products():
+    db_sess = db_session.create_session()
+    data = []
+    for el in db_sess.query(Products):
+        if el.owner != current_user.id:
+            data.append((el.id, el.name, el.price, el.description, el.image, el.categories, el.owner))
+    categs = []
+    for el in db_sess.query(Categories).all():
+        categs.append([el.id, el.name])
+    products = data
+    return render_template('allproducts.html', itemData=parse(data), categs=categs, products=products)
+
+
+@app.route('/display_category/<int:id>')
+@login_required
+def display_category(id):
+    db_sess = db_session.create_session()
+    data = []
+    for el in db_sess.query(Products):
+        if el.owner != current_user.id and str(id) in str(el.categories).split(", "):
+            data.append((el.id, el.name, el.price, el.description, el.image, el.categories, el.owner))
+    x = db_sess.query(Categories).filter(Categories.id == id).first().name
+    return render_template('display_category.html', category=x, itemData=parse(data))
+
+
+@app.route('/product_description/<int:product_id>')
+@login_required
+def product_description(product_id):
     dbs = db_session.create_session()
-    res = dbs.query(User).all()
-    for el in res:
-        form.email.choices.append(el.email)
-        form.collaborators.choices.append(str(el.id))
+    el = dbs.query(Products).filter(Products.id == product_id).first()
+    product_data = (el.id, el.name, el.price, el.description, el.image, el.categories, el.owner)
+    user = dbs.query(User).filter(User.id == el.owner).first()
+    owner = user.name + user.surname + '' + "\nКонтактные данные: " + user.email
+    return render_template("product_description.html", data=product_data, owner=owner)
+
+
+@app.route('/add_product', methods=['GET', 'POST'])
+@login_required
+def add_product():
+    form = ProductForm()
+    dbs = db_session.create_session()
+    categs = dbs.query(Categories).all()
+    for el in dbs.query(User).all():
+        form.owner_email.choices.append(el.email)
+
+    for el in dbs.query(Categories).all():
+        form.categories.choices.append(el.name)
+    filename = ''
     if form.validate_on_submit():
         db_sess = db_session.create_session()
-        job = Jobs()
-        job.job = form.name.data
-        job.team_leader = current_user.id
-        job.collaborators = ','.join(form.collaborators.data)
-        job.is_finished = form.is_finished.data
-        job.start_date = form.start_date.data
-        job.end_date = form.end_date.data
-        job.work_size = form.work_size.data
-        hazard = HazardLevel()
-        hazard.level = form.hazard_level.data
-        job.hazard_level.append(hazard)
-        db_sess.add(job)
-        db_sess.commit()
-        return redirect("/alljobs")
-    return render_template('addjob.html', form=form)
+        prod = Products()
+        prod.owner = current_user.id
+        prod.name = form.name.data
 
+        f = form.image.data
+        filename = secure_filename(f.filename)
+        if filename != '':
+            prod.image = filename
+            f.save(os.path.join(app.config['UPLOAD_PATH'], filename))
 
-@app.route('/alljobs')
-def all_jobs():
-    dbs = db_session.create_session()
-    res = dbs.query(Jobs).all()
-    jobs = []
-    for el in res:
-        title = el.job
-        time = el.end_date - el.start_date
-        team_leader = f"{el.user.name} {el.user.surname}"
-        collaborators = el.collaborators
-        isf = el.is_finished
-        lvl = el.hazard_level[-1].level
-        jobs.append([title, team_leader, time, collaborators, isf, el.user.id, el.id, lvl])
-    return render_template('alljobs.html', jobs=jobs)
-
-
-@app.route('/addjob/<int:id>', methods=['GET', 'POST'])
-@login_required
-def edit_job(id):
-    form = JobForm()
-    dbs = db_session.create_session()
-    res = dbs.query(User).all()
-    for el in res:
-        form.email.choices.append(el.email)
-        form.collaborators.choices.append(str(el.id))
-    if request.method == "GET":
-        dbs = db_session.create_session()
-        job = dbs.query(Jobs).filter((Jobs.id == id), (Jobs.user == current_user)).first()
-        if job:
-            form.name.data = job.job
-            form.work_size.data = job.work_size
-            form.collaborators.data = job.collaborators
-            form.start_date.data = job.start_date
-            form.end_date.data = job.end_date
-            form.email.data = job.user.email
-            form.is_finished.data = job.is_finished
-            if job.hazard_level:
-                form.hazard_level.data = job.hazard_level[-1].level
+        prod.description = form.description.data
+        prod.price = form.price.data
+        categs_names = map(lambda x: x.name, categs)
+        last_categ_id = max(map(lambda x: int(x.id), categs))
+        categories = []
+        x = form.categories.data
+        if x is None:
+            x = []
+        for el in x:
+            if el.lower() in categs_names:
+                categories.append(db_sess.query(Categories).filter(Categories.name == el.lower()).first().id)
             else:
-                form.hazard_level.data = 0
+                category = Categories()
+                category.name = el.lower()
+                category.id = last_categ_id + 1
+                db_sess.add(category)
+                categories.append(last_categ_id)
+                last_categ_id += 1
+        prod.categories = (', '.join(map(str, categories)))
+
+        db_sess.add(prod)
+        db_sess.commit()
+        return redirect("/all_products")
+    return render_template('add_product.html', form=form, filename=filename)
+
+
+@app.route('/add_product/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_prod(id):
+    form = ProductForm()
+    dbs = db_session.create_session()
+    categs = dbs.query(Categories).all()
+    for el in dbs.query(User).all():
+        form.owner_email.choices.append(el.email)
+    for el in dbs.query(Categories).all():
+        form.categories.choices.append(el.name)
+    filename = ""
+    if request.method == "GET":
+        prod = dbs.query(Products).filter((Products.id == id), (Products.owner == current_user.id)).first()
+        if prod:
+            prod.owner = current_user.id
+            prod.name = form.name.data
+
+            f = form.image.data
+            if f is not None:
+                filename = secure_filename(f.filename)
+                if filename != '':
+                    prod.image = filename
+                    f.save(os.path.join(app.config['UPLOAD_PATH'], filename))
+
+            prod.description = form.description.data
+            prod.price = form.price.data
+
+            categs_names = map(lambda x: x.name, categs)
+            last_categ_id = max(map(lambda x: int(x.id), categs))
+            categories = []
+            x = form.categories.data
+            if x is None:
+                x = []
+            for el in x:
+                if el.lower() in categs_names:
+                    categories.append(dbs.query(Categories).filter(Categories.name == el.lower()).first().id)
+                else:
+                    category = Categories()
+                    category.name = el.lower()
+                    category.id = last_categ_id + 1
+                    dbs.add(category)
+                    categories.append(last_categ_id)
+                    last_categ_id += 1
+            prod.categories = ', '.join(map(str, categories))
+            dbs.add(prod)
+            dbs.commit()
         else:
             pass
     if form.validate_on_submit():
         dbs = db_session.create_session()
-        job = dbs.query(Jobs).filter((Jobs.id == id), (Jobs.user == current_user)).first()
-        user = dbs.query(User).filter(User.email == form.email.data).first()
-        if not user:
-            return render_template('addjob.html', message='Неверно указана почта', form=form)
-        if job:
-            job.job = form.name.data
-            job.team_leader = current_user.id
-            job.collaborators = ','.join(form.collaborators.data)
-            job.is_finished = form.is_finished.data
-            job.start_date = form.start_date.data
-            job.end_date = form.end_date.data
-            job.work_size = form.work_size.data
-            hl = HazardLevel()
-            hl.level = form.hazard_level.data
-            job.hazard_level.append(hl)
+        prod = dbs.query(Products).filter((Products.id == id), (Products.owner == current_user.id)).first()
+        res = dbs.query(User).all()
+        for el in res:
+            form.owner_email.choices.append(el.email)
+        if not res:
+            return render_template('add_product.html', message='Неверно указана почта', form=form)
+        filename = ""
+        if prod:
+            prod.owner = current_user.id
+            prod.name = form.name.data
+
+            f = form.image.data
+            if f is not None:
+                filename = secure_filename(f.filename)
+                if filename != '':
+                    prod.image = filename
+                    f.save(os.path.join(app.config['UPLOAD_PATH'], filename))
+
+            prod.description = form.description.data
+            prod.price = form.price.data
+            categs_names = map(lambda x: x.name, categs)
+            last_categ_id = max(map(lambda x: int(x.id), categs))
+            categories = []
+            x = form.categories.data
+            if x is None:
+                x = []
+            for el in x:
+                if el.lower() in categs_names:
+                    categories.append(dbs.query(Categories).filter(Categories.name == el.lower()).first().id)
+                else:
+                    category = Categories()
+                    category.name = el.lower()
+                    category.id = last_categ_id + 1
+                    dbs.add(category)
+                    categories.append(last_categ_id)
+                    last_categ_id += 1
+            prod.categories = ', '.join(map(str, categories))
+            dbs.add(prod)
             dbs.commit()
-            return redirect('/alljobs')
+            return redirect('/all_products')
         else:
             pass
-    return render_template('addjob.html', form=form)
+    return render_template('add_product.html', form=form, filename=filename)
 
 
-@app.route('/job_delete/<int:id>', methods=['GET', 'POST'])
+@app.route('/delete_product/<int:id>', methods=['GET', 'POST'])
 @login_required
-def delete_job(id):
+def delete_prod(id):
     dbs = db_session.create_session()
-    jobs = dbs.query(Jobs).filter((Jobs.id == id), (Jobs.user == current_user)).first()
-    if jobs:
-        dbs.delete(jobs)
+    product = dbs.query(Products).filter((Products.id == id), (Products.owner == current_user.id)).first()
+    if product:
+        dbs.delete(product)
         dbs.commit()
     else:
         pass
-    return redirect('/alljobs')
+    return redirect('/all_products')
+
+
+@app.route('/users_products')
+@login_required
+def users_products():
+    db_sess = db_session.create_session()
+    data = []
+    for el in db_sess.query(Products):
+        if el.owner == current_user.id:
+            data.append((el.name, el.description, el.price, el.categories, el.id))
+    return render_template('users_products.html', data=data)
 
 
 @app.errorhandler(400)
@@ -244,10 +379,11 @@ def bad_request(_):
 
 
 if __name__ == '__main__':
-    db_session.global_init("db/blogs.db")
-    app.register_blueprint(jobs_api.blueprint)
+    db_session.global_init("db/db_avito.db")
+    app.register_blueprint(products_api.blueprint)
+    app.register_blueprint(user_api.blueprint)
     api.add_resource(UsersListResource, '/api/v2/users')
     api.add_resource(UsersResource, '/api/v2/users/<int:user_id>')
-    api.add_resource(JobsListResource, '/api/v2/jobs')
-    api.add_resource(JobsResource, '/api/v2/jobs/<int:job_id>')
+    api.add_resource(ProductsListResource, '/api/v2/products')
+    api.add_resource(ProductsResource, '/api/v2/products/<int:product_id>')
     app.run(port=8080, host='127.0.0.1')

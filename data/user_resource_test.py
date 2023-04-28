@@ -1,17 +1,14 @@
 from requests import get, post, delete, put
-import datetime
 
 print(get('http://127.0.0.1:8080/api/v2/users').json())
-print(post('http://127.0.0.1:8080/api/v2/users', json={'email': 'test1@mars.org',
-                                                       'surname': 'komarov', 'name': 'ivan', 'age': 22,
-                                                       'position': '2', 'speciality': 'microbiologist',
+print(post('http://127.0.0.1:8080/api/v2/users', json={'email': 'test3@icloud.org',
+                                                       'surname': 'komarov', 'name': 'ivan',
                                                        'address': 'Novatorov 22A',
                                                        'password_hash': 'password',
-                                                       'modified_date': None}).json())
-print(put('http://127.0.0.1:8080/api/v2/users/7', json={'email': 'test2@mars.org',
-                                                        'surname': 'komarov', 'name': 'ivan', 'age': 22,
-                                                        'position': '2', 'speciality': 'microbiologist',
+                                                       'balance': 0}).json())
+print(put('http://127.0.0.1:8080/api/v2/users/4', json={'email': 'test1@icloud.org',
+                                                        'surname': 'komarov', 'name': 'ivan',
                                                         'address': 'Novatorov 22A',
                                                         'password_hash': 'password',
-                                                        'modified_date': None}).json())
+                                                        'balance': 0}).json())
 print(delete('http://127.0.0.1:8080/api/v2/users/4').json())
