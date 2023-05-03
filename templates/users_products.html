@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2 id="spec2">Rooms log</h2>
+<h2 id="spec2">Все мои товары</h2>
 <div id="users_prod">
 {% if current_user.is_authenticated %}
     <a href="/add_product" class="btn btn-secondary">Добавить новый товар</a>
@@ -13,6 +13,7 @@
         <a href="/product_description/{{ product[4] }}" class="btn btn-warning">Перейти</a>
         <a href="/add_product/{{ product[4] }}" class="btn btn-danger">Изменить</a>
         <a href="/delete_product/{{ product[4] }}" class="btn btn-danger">Удалить</a>
+        <a href="/add_product/{{ product[4] }}" class="btn btn-success">Товар был куплен</a>
     </div>
     <br/>
     <table class="table">

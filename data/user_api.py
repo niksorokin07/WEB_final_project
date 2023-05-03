@@ -5,7 +5,7 @@ from data.users import User
 from werkzeug.security import generate_password_hash
 
 blueprint = flask.Blueprint(
-    'users_api',
+    'user_api',
     __name__,
     template_folder='templates'
 )
@@ -17,7 +17,7 @@ def get_users():
     return jsonify(
         {
             'users':
-                [item.to_dict(only=('name', 'owner.name'))
+                [item.to_dict(only=('name', 'surname', 'email'))
                  for item in db_sess.query(User).all()]
         }
     )
@@ -26,7 +26,7 @@ def get_users():
 @blueprint.route('/api/users/<int:user_id>', methods=['GET'])
 def get_one_user(user_id):
     db_sess = db_session.create_session()
-    users = db_sess.query(User).get(user_id)
+    users = db_sess.query(User).filter(User.id == user_id).first()
     if not users:
         return jsonify({'error': 'Not found'})
     return jsonify(
@@ -49,12 +49,13 @@ def create_user():
             return jsonify({'error': "Id already exists"})
     args = request.json
     user = User()
-    user.surname = args['surname'],
-    user.name = args['name'],
-    user.balance = args['balance'],
-    user.address = args['address'],
-    user.email = args['email'],
-    user.password_hash = generate_password_hash(args['password_hash']),
+    user.id = args["id"]
+    user.surname = args['surname']
+    user.name = args['name']
+    user.balance = args['balance']
+    user.address = args['address']
+    user.email = args['email']
+    user.password_hash = generate_password_hash(args['password_hash'])
     db_sess.add(user)
     db_sess.commit()
     return jsonify({'success': 'OK'})
@@ -63,7 +64,7 @@ def create_user():
 @blueprint.route('/api/users/<int:id>', methods=['DELETE'])
 def delete_user(id):
     db_sess = db_session.create_session()
-    el = db_sess.query(User).get(id)
+    el = db_sess.query(User).filter(User.id == id).first()
     if not el:
         return jsonify({'error': 'Bad request'})
     db_sess.delete(el)
@@ -79,17 +80,15 @@ def edit_user(id):
                  ['email', 'password_hash', 'surname', 'name', 'balance', 'address']):
         return jsonify({'error': 'Bad request'})
     db_sess = db_session.create_session()
-    user = db_sess.query(User).get(id)
+    user = db_sess.query(User).filter(User.id == id).first()
     if not user:
         return jsonify({'error': "Id doesn't exist"})
-    if not db_sess.query(User).filter(User.id == request.json['owner']).first():
-        return jsonify({'error': 'Bad request'})
     args = request.json
-    user.surname = args['surname'],
-    user.name = args['name'],
-    user.balance = args['balance'],
-    user.address = args['address'],
-    user.email = args['email'],
-    user.password_hash = generate_password_hash(args['password_hash']),
+    user.surname = args['surname']
+    user.name = args['name']
+    user.balance = args['balance']
+    user.address = args['address']
+    user.email = args['email']
+    user.password_hash = generate_password_hash(args['password_hash'])
     db_sess.commit()
     return jsonify({'success': 'OK'})

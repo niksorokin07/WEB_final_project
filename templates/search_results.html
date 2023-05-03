@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="search_results">
+<a href="/all_products" class="gradient-button">Назад</a>
+<h1>Резальтаты для: {{ query }}</h1>
+<br>
+<div>
+    <h2>Товары</h2>
+    {% for data in products_table %}
+    <table id="products_table">
+        <tr id="productName">
+            {% for row in data %}
+            <td>
+                {{row[1]}}
+            </td>
+            {% endfor %}
+        </tr>
+        <tr id="productImage">
+            {% for row in data %}
+            <td>
+                <a href="/product_description/{{row[0]}}">
+                    <img src="{{ url_for('static', filename='uploads/' + row[4]) }}" id="itemImage"/>
+                </a>
+            </td>
+            {% endfor %}
+        </tr>
+        <tr id="productPrice">
+            {% for row in data %}
+            <td>
+                {{row[2]}}₽
+            </td>
+            {% endfor %}
+        </tr>
+    </table>
+    {% endfor %}
+</div>
+</div>
+{% endblock %}

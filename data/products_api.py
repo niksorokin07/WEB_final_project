@@ -26,12 +26,12 @@ def get_products():
 @blueprint.route('/api/products/<int:prod_id>', methods=['GET'])
 def get_one_product(prod_id):
     db_sess = db_session.create_session()
-    products = db_sess.query(Products).get(prod_id)
+    products = db_sess.query(Products).filter(Products.id == prod_id).first()
     if not products:
         return jsonify({'error': 'Not found'})
     return jsonify(
         {
-            'jobs': products.to_dict(only=('name', 'user.name'))
+            'product': products.to_dict(only=('name', 'owner.email'))
         }
     )
 
@@ -63,7 +63,7 @@ def create_product():
 @blueprint.route('/api/products/<int:id>', methods=['DELETE'])
 def delete_product(id):
     db_sess = db_session.create_session()
-    el = db_sess.query(Products).get(id)
+    el = db_sess.query(Products).filter(Products.id == id).first()
     if not el:
         return jsonify({'error': 'Bad request'})
     db_sess.delete(el)

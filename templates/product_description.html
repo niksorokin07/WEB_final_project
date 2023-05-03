@@ -15,15 +15,17 @@
 			</tr>
 			<tr>
 				<td>Цена</td>
-				<td>${{data[2]}}</td>
+				<td>{{data[2]}}₽</td>
 			</tr>
 			<tr>
-				<td>Склад</td>
-				<td>{{data[5]}}</td>
+				<td>Адрес влаельца</td>
+				<td>{{address}}</td>
 			</tr>
 		</table>
 		<h2>Описание товара</h2>
 		<p>{{data[3]}}</p>
-	<p class="forms"><a href = '/all_products'> {{ form.submit(type="submit", class="btn btn-primary") }}</a></p>
+	{% if f == True %}
+		<p class="forms"><a href = '/all_products'> {{ form.submit(type="submit", class="btn btn-primary") }}</a></p>
+	{% endif %}
 	</div>
 {% endblock %}
