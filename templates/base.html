@@ -106,13 +106,7 @@ body{
     color: black;
     padding: 40px 20px;
 }
-.vobocuka-kagolovok {
-  font-size: 23px;
-  padding-bottom: 8px;
-  margin-bottom: 16px;
-  border-bottom: 2px solid #BFE2FF;
-}
-/* Оформление кнопки на странице */
+
 .btnn-wr {
   text-align: center;
 }
@@ -168,6 +162,40 @@ body{
 #bokovon-lodsaba:checked + .bokovaya-kapanel {
   left: 0;
 }
+.navbar-brand{
+text-decoration: none;
+  display: inline-block;
+  color: black;
+  padding: 20px 30px;
+  margin: 10px 20px;
+  border-radius: 10px;
+  font-family: 'Montserrat', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  background-image: linear-gradient(to right, #DEB887 0%, #D2B48C 51%, #CD853F 100%);
+  background-size: 200% auto;
+  box-shadow: 0 0 20px rgba(0, 0, 0, .1);
+  transition: .5s;
+  margin-top:0%;
+}
+.navbar-brand:hover{
+background-position: right center;}
+.gradient-button12 {
+  text-decoration: none;
+  display: inline-block;
+  color: black;
+  padding: 10px 15px;
+  margin: 5px 10px;
+  border-radius: 10px;
+  font-family: 'Montserrat', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background-image: linear-gradient(to right, #DEB887 0%, #D2B48C 51%, #CD853F 100%);
+  background-size: 100% auto;
+  box-shadow: 0 0 20px rgba(0, 0, 0, .1);
+  transition: .5s;
+
+}
 
 </style>
 <html lang="en">
@@ -187,7 +215,7 @@ body{
     <a href="/profile" class="gradient-button">Профиль</a>
     <a href="/all_products" class="gradient-button">Все товары</a>
     <a href="/balancee" class="gradient-button">Пополнение счета</a>
-     <a href="/users_products" class="gradient-button">Мои товары</a>
+    <a href="/users_products" class="gradient-button">Мои товары</a>
 </div>
 <div class="side-button-1-wr">
     <label class="side-button-1" for="side-checkbox">
@@ -199,7 +227,7 @@ body{
 <br>
 <nav><a>
     {% if current_user.is_authenticated %}
-    <a class="navbar-brand" href="/logout">{{ current_user.name }}</a>
+    <a class="navbar-brand" href="/logout">выйти из аккаунта({{ current_user.name }})</a>
 
     {% else %}
     <a>
@@ -208,6 +236,7 @@ body{
     </a>
     {% endif %}
 </a></nav>
+<br>
 
 {% block content %}{% endblock content %}
 </body>

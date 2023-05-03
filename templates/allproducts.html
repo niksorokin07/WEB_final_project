@@ -1,20 +1,28 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% if message == True %}
 <div class="alert">
     <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
     Ваш(и) товар(ы) {{ name }} востребован(ы)
 </div>
+{% endif %}
 
-<!-- ordered list -->
+
+{% if current_user.is_authenticated %}
+<div id="panel"> >>>
+    <div id="hidden_panel">
+
+
+    </div>
+</div>
 
 
 <input type="checkbox" id="bokovon-lodsaba"/>
 <div class="bokovaya-kapanel">
     <label class="nogamlenu-knopki-2" for="bokovon-lodsaba">+</label>
-    <div class="vobocuka-kagolovok">Фильтрация по категориям:</div>
     <p> {% for categ in categs %}
-    <p><a href="/display_category/{{ categ[0] }}"> {{ categ[1] }}</a></p>
+    <p><a href="/display_category/{{ categ[0] }}" class='gradient-button12'> {{ categ[1] }}</a></p>
     {% endfor %}</p>
 </div>
 <div class="nogamlenu-knopki-1-wr">
@@ -27,14 +35,17 @@
     <input type="text" name="query" placeholder="Введите название товаров">
     <button type="submit">Поиск</button>
 </form>
+{% endif %}
 
 
 <div id="work_logs">
     {% if current_user.is_authenticated %}
     <br/>
     {% endif %}
+
+
     <div>
-        <h2>Товары</h2>
+        <h2>Items</h2>
         {% for data in itemData %}
         <table id="products_table">
             <tr id="productName">

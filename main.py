@@ -291,17 +291,8 @@ def add_product():
         if x is None:
             x = []
         for el in x:
-            if el.lower() in categs_names:
-                categories.append(db_sess.query(Categories).filter(Categories.name == el.lower()).first().id)
-            else:
-                category = Categories()
-                category.name = el.lower()
-                category.id = last_categ_id + 1
-                db_sess.add(category)
-                categories.append(last_categ_id)
-                last_categ_id += 1
+            categories.append(dbs.query(Categories).filter(Categories.name == el).first().id)
         prod.categories = (', '.join(map(str , categories)))
-
         db_sess.add(prod)
         db_sess.commit()
         return redirect("/all_products")
@@ -344,15 +335,7 @@ def edit_prod(id):
             if x is None:
                 x = []
             for el in x:
-                if el.lower() in categs_names:
-                    categories.append(dbs.query(Categories).filter(Categories.name == el.lower()).first().id)
-                else:
-                    category = Categories()
-                    category.name = el.lower()
-                    category.id = last_categ_id + 1
-                    dbs.add(category)
-                    categories.append(last_categ_id)
-                    last_categ_id += 1
+                categories.append(dbs.query(Categories).filter(Categories.name == el).first().id)
             prod.categories = ', '.join(map(str , categories))
             dbs.add(prod)
             dbs.commit()
@@ -380,22 +363,12 @@ def edit_prod(id):
 
             prod.description = form.description.data
             prod.price = form.price.data
-            categs_names = map(lambda x: x.name , categs)
-            last_categ_id = max(map(lambda x: int(x.id) , categs))
             categories = []
             x = form.categories.data
             if x is None:
                 x = []
             for el in x:
-                if el.lower() in categs_names:
-                    categories.append(dbs.query(Categories).filter(Categories.name == el.lower()).first().id)
-                else:
-                    category = Categories()
-                    category.name = el.lower()
-                    category.id = last_categ_id + 1
-                    dbs.add(category)
-                    categories.append(last_categ_id)
-                    last_categ_id += 1
+                categories.append(dbs.query(Categories).filter(Categories.name == el).first().id)
             prod.categories = ', '.join(map(str , categories))
 
             dbs.add(prod)
