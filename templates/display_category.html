@@ -4,11 +4,11 @@
 <input type="checkbox" id="bokovon-lodsaba" />
 <div class="bokovaya-kapanel">
   <label class="nogamlenu-knopki-2" for="bokovon-lodsaba">+</label>
-  <div class="vobocuka-kagolovok"> Фильтрация категорий: </div>
+
   <p> {% for categ in categs %}
-<p><a href="/display_category/{{ categ[0] }}"> {{ categ[1] }}</a></p>
+<p><a href="/display_category/{{ categ[0] }} " class = "gradient-button12"> {{ categ[1] }}</a></p>
 {% endfor %}</p>
-    <a href = '/all_products'>все товары</a>
+    <a href = '/all_products' class = "gradient-button12">все товары</a>
 </div>
 <div class="nogamlenu-knopki-1-wr">
   <label class="btnn" for="bokovon-lodsaba">

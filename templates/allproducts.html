@@ -4,6 +4,7 @@
 {% if message == True %}
 <style>
 
+
 </style>
 <div class="alert">
     <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
@@ -11,34 +12,29 @@
 </div>
 {% endif %}
 
-<!-- ordered list -->
-
 
 {% if current_user.is_authenticated %}
 <div id="panel"> >>>
     <div id="hidden_panel">
 
 
-
     </div>
 </div>
 
 
-
-
-<input type="checkbox" id="bokovon-lodsaba" />
+<input type="checkbox" id="bokovon-lodsaba"/>
 <div class="bokovaya-kapanel">
-  <label class="nogamlenu-knopki-2" for="bokovon-lodsaba">+</label>
-  <div class="vobocuka-kagolovok">Фильтрация по категориям:</div>
-  <p> {% for categ in categs %}
-<p><a href="/display_category/{{ categ[0] }}"> {{ categ[1] }}</a></p>
-{% endfor %}</p>
+    <label class="nogamlenu-knopki-2" for="bokovon-lodsaba">+</label>
+
+    <p> {% for categ in categs %}
+    <p><a href="/display_category/{{ categ[0] }}" class='gradient-button12'> {{ categ[1] }}</a></p>
+    {% endfor %}</p>
 </div>
 <div class="nogamlenu-knopki-1-wr">
-  <label class="btnn" for="bokovon-lodsaba">
-  <div class="side-b side-open">ФИЛЬТРАЦИЯ</div>
-  <div class="side-b side-close">ФИЛЬТРАЦИЯ</div>
-  </label>
+    <label class="btnn" for="bokovon-lodsaba">
+        <div class="side-b side-open">ФИЛЬТРАЦИЯ</div>
+        <div class="side-b side-close">ФИЛЬТРАЦИЯ</div>
+    </label>
 </div>
 <script src="./static/scripts/script.js"></script>
 <section class="intro">
@@ -69,7 +65,6 @@
     {% if current_user.is_authenticated %}
     <br/>
     {% endif %}
-
 
 
     <div>
