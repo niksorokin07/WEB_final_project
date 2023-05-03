@@ -8,8 +8,8 @@ from data.user_resource_parser import parser
 
 def abort_if_user_not_found(user_id):
     session = db_session.create_session()
-    news = session.query(User).get(user_id)
-    if not news:
+    users = session.query(User).get(user_id)
+    if not users:
         abort(404, message=f"News {user_id} not found")
 
 
@@ -22,7 +22,7 @@ class UsersResource(Resource):
             return jsonify({'error': 'Not found'})
         return jsonify({
             'user': data.to_dict(
-                only=('email', 'password_hash', 'surname', 'name', 'age', 'position', 'speciality', 'address'))
+                only=('email', 'password_hash', 'surname', 'name', 'balance', 'address'))
         })
 
     def delete(self, user_id):
@@ -38,22 +38,19 @@ class UsersResource(Resource):
     def put(self, user_id):
         args = parser.parse_args()
         if not args or not all(key in args for key in
-                               ['surname', 'name', 'age', 'position', 'speciality', 'address', 'email',
-                                'password_hash', 'modified_date', ]):
+                               ['surname', 'name',  'address', 'email', 'balance', 'password_hash']):
             return jsonify({'error': 'Bad request'})
         db_sess = db_session.create_session()
-        if db_sess.query(User).filter(User.id == user_id).first():
-            return jsonify({'error': 'Id already exists'})
-        user = User()
+        user = db_sess.query(User).filter(User.id == user_id).first()
+        if user is None:
+            user = User()
+            user.id = user_id
         user.surname = args['surname'],
         user.name = args['name'],
-        user.age = args['age'],
-        user.position = args['position'],
-        user.speciality = args['speciality'],
+        user.balance = args['balance'],
         user.address = args['address'],
         user.email = args['email'],
         user.password_hash = generate_password_hash(args['password_hash']),
-        user.modified_date = args['modified_date'],
         db_sess.commit()
         return jsonify({'success': 'OK'})
 
@@ -67,20 +64,16 @@ class UsersListResource(Resource):
     def post(self):
         args = parser.parse_args()
         if not args or not all(key in args for key in
-                               ['address', 'age', 'email', 'modified_date', 'name', 'position', 'surname',
-                                'speciality', 'password_hash']):
+                               ['surname', 'name',  'address', 'email', 'balance', 'password_hash']):
             return jsonify({'error': 'Bad request'})
         db_sess = db_session.create_session()
         user = User(
             surname=args['surname'],
             name=args['name'],
-            age=args['age'],
-            position=args['position'],
-            speciality=args['speciality'],
+            balance=args['balance'],
             address=args['address'],
             email=args['email'],
             password_hash=generate_password_hash(args['password_hash']),
-            modified_date=args['modified_date'],
         )
         db_sess.add(user)
         db_sess.commit()

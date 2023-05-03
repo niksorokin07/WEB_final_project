@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+<input type="checkbox" id="bokovon-lodsaba" />
+<div class="bokovaya-kapanel">
+  <label class="nogamlenu-knopki-2" for="bokovon-lodsaba">+</label>
+  <div class="vobocuka-kagolovok"> Фильтрация категорий: </div>
+  <p> {% for categ in categs %}
+<p><a href="/display_category/{{ categ[0] }}"> {{ categ[1] }}</a></p>
+{% endfor %}</p>
+    <a href = '/all_products'>все товары</a>
+</div>
+<div class="nogamlenu-knopki-1-wr">
+  <label class="btnn" for="bokovon-lodsaba">
+  <div class="side-b side-open">ФИЛЬТРАЦИЯ</div>
+  <div class="side-b side-close">ФИЛЬТРАЦИЯ</div>
+  </label>
+</div>
+<h2>Товары категории {{ category }}</h2>
+<div id="work_logs">
+    {% if current_user.is_authenticated %}
+    <br/>
+    {% endif %}
+    <div>
+        <h2>Items</h2>
+        {% for data in itemData %}
+        <table id="products_table">
+            <tr id="productName">
+                {% for row in data %}
+                <td>
+                    {{row[1]}}
+                </td>
+                {% endfor %}
+            </tr>
+            <tr id="productImage">
+                {% for row in data %}
+                <td>
+                    <a href="/product_description/{{row[0]}}">
+                        <img src="{{ url_for('static', filename='uploads/' + row[4]) }}" id="itemImage"/>
+                    </a>
+                </td>
+                {% endfor %}
+            </tr>
+            <tr id="productPrice">
+                {% for row in data %}
+                <td>
+                     {{row[2]}}₽
+                </td>
+                {% endfor %}
+            </tr>
+        </table>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

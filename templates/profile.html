@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block content %}
+
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Proile</title>
+    <style>
+   .round {
+    border-radius: 100px;
+    border: 3px solid pink;
+    box-shadow: 0 0 7px #666;
+    border: 1px solid #333;
+    padding: 7px;
+    margin: 10px 0 5px 5px;
+    background: #f0f0f0;
+    box-shadow: 0 0 0 3px red,
+                0 0 0 6px blue,
+                3px 0 0 6px orange;
+   }
+   h2{
+   font-size: 20px;
+  font-style: italic;
+  font-family: sans-serif;
+  margin-left:30px;
+}
+   #about{
+  font-style: italic;
+  font-family: sans-serif;
+  margin-right: 25%;
+  padding-left: 200px;
+    text-align: justify;
+}
+body{
+ background-color: #c7b39b;
+ }
+ .gradient-button {
+  text-decoration: none;
+  display: inline-block;
+  color: black;
+  padding: 20px 30px;
+  margin: 10px 20px;
+  border-radius: 10px;
+  font-family: 'Montserrat', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  background-image: linear-gradient(to right, #DEB887 0%, #D2B48C 51%, #CD853F 100%);
+  background-size: 200% auto;
+  box-shadow: 0 0 20px rgba(0, 0, 0, .1);
+  transition: .5s;
+  margin-top:35%;
+}
+.gradient-button:hover {
+  background-position: right center;
+}
+@charset  "UTF-8";
+
+
+
+/* панель
+ {
+    margin: 0;
+    padding: 0;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box
+}
+
+
+
+h1 {
+    font-weight: 300;
+    font-size: 175%;
+    color: #191919;
+    -webkit-font-smoothing: antialiased
+}
+
+h2 {
+    font-weight: 300;
+    font-size: 130%;
+    color: #888;
+    padding: 5px 0
+}
+
+.info {
+    margin: 50px auto;
+    text-align: center
+}
+
+.info a {
+    text-decoration: none;
+    color: #016993
+}
+
+.info a:hover {
+    color: #ad8c02
+}
+.fa {
+    color: #fd6969
+}
+
+
+
+
+
+.b {
+  width: 130px;
+  height: 40px;
+ color: black;
+  border-radius: 5px;
+  padding: 10px 25px;
+  font-family: 'Lato', sans-serif;
+  cursor: pointer;
+  transition: all 0.5s ease;
+  position: relative;
+  display: inline-block;
+
+  outline: none;
+}
+.b {
+  border: none;
+}
+
+.b:active {
+  top: 2px;
+}
+
+
+    </style>
+</head>
+
+<body>
+
+<div id='avab'><input type="image" src="static/uploads/unnamed.jpg" alt="" class="round" width="100" height="111"></div>
+<h2>Аватар</h2>
+<h1 id='about'>Обо мне:</h1>
+<h1>баланс:{{ balance }}</h1>
+<a href="/all_products" class="gradient-button">Меню</a>
+<input class="open" id="top-box" type="checkbox" hidden>
+<label class="btn" for="top-box"></label>
+</body>
+</html>
+{% endblock %}
