@@ -263,8 +263,8 @@ def add_product():
     form = ProductForm()
     dbs = db_session.create_session()
     categs = dbs.query(Categories).all()
-    for el in dbs.query(User).all():
-        form.owner_email.choices.append(el.email)
+    el = dbs.query(User).filter(User.id == current_user.id).first()
+    form.owner_email.choices.append(el.email)
     for el in categs:
         form.categories.choices.append(el.name)
     filename = ''
@@ -306,8 +306,8 @@ def edit_prod(id):
     form = ProductForm()
     dbs = db_session.create_session()
     categs = dbs.query(Categories).all()
-    for el in dbs.query(User).all():
-        form.owner_email.choices.append(el.email)
+    el = dbs.query(User).filter(User.id == current_user.id).first()
+    form.owner_email.choices.append(el.email)
     for el in categs:
         form.categories.choices.append(el.name)
     filename = ""
